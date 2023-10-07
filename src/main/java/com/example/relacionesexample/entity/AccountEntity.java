@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -23,6 +25,9 @@ public class AccountEntity {
 
     @Column(name = "acc_owner")
     private String owner;
+
+    @Column(name = "acc_date_created")
+    private LocalDate dateCreated;
 
     @ManyToOne
     @JoinColumn(name = "acc_bank")

@@ -21,6 +21,13 @@ public class LibraryEntity {
     @Column(name = "lib_name", nullable = false)
     private String name;
 
+    @Column(name = "lib_phone")
+    private String phone;
+
+    @Column(name = "lib_domain")
+    @Enumerated(EnumType.STRING)
+    private DomainType domainType;
+
     @OneToOne
     @JoinColumn(name="lib_andress")
     private AddressEntity address;

@@ -1,6 +1,8 @@
 package com.example.relacionesexample.repository;
 
+import com.example.relacionesexample.entity.DomainType;
 import com.example.relacionesexample.entity.LibraryEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,40 +20,73 @@ class ILibraryRepositoryTest {
     @Autowired
     private ILibraryRepository repository;
 
+    private List<LibraryEntity> libraries;
+
+    @BeforeEach
+    public void setup(){
+        //given
+        if(libraries == null){
+            libraries = new ArrayList<>();
+            libraries.add(new LibraryEntity(null,"Center Library","4444445", DomainType.PRIVATE,null));
+            libraries.add(new LibraryEntity(null,"Leaf Library","4444444", DomainType.PRIVATE,null));
+            libraries.add(new LibraryEntity(null,"Manson Library","4447445", DomainType.PUBLIC,null));
+            repository.saveAll(libraries);
+        }
+    }
+
     @Test
-    @DisplayName("it should check if library exists by name")
-    void itShouldCheckIfLibraryExistsByName(){
+    @DisplayName("test if all libraries exists")
+    void testIfLibrariesExists() {
 
-        List<LibraryEntity> libraries = new ArrayList<>();
-        libraries.add(new LibraryEntity(0L,"Centre Library",null));
-        repository.saveAll(libraries);
+        //when
+        List<LibraryEntity> entities = repository.findAll();
 
-        LibraryEntity entities = repository.findByName("Centre Library");
+        //then
+        assertNotNull(entities);
+        assertEquals(entities.size(), 2);
+    }
+
+    @Test
+    @DisplayName("test if library is updated")
+    void testUpdateLibrary() {
+        //when
+        LibraryEntity library = repository.findById(0L).get();
+        library.setName("Harvard Library");
+        library.setDomainType(DomainType.PUBLIC);
+        LibraryEntity updatedLibrary = repository.save(library);
+
+        //then
+        assertEquals(updatedLibrary.getName(), "Harvard Library");
+        assertEquals(updatedLibrary.getDomainType(), DomainType.PUBLIC);
+    }
+
+    @Test
+    @DisplayName("test if library is deleted")
+    void testDeleteLibrary() {
+        //when
+        repository.deleteById(0L);
+        Optional<LibraryEntity> library = repository.findById(0L);
+
+        //then
+        assertTrue(library.isEmpty());
+    }
+    @Test
+    @DisplayName("test if library exists by name")
+    void testLibraryExistsByName(){
+        //when
+        List<LibraryEntity> entities = repository.findByName("Center Library");
+
+        //then
         assertNotNull(entities);
     }
 
-
-
-
-    //Unit Tests
     @Test
-    @DisplayName("😱")
-    void itShouldMakeAddition(){
-        //given
-        int number1 = 20;
-        int number2 = 40;
-
+    @DisplayName("test if library exists by domain type")
+    void testLibraryExistsByDomainType(){
         //when
-        int result  = new Calculator().add(number1, number2);
+        List<LibraryEntity> entities = repository.findByDomainType(DomainType.PRIVATE);
 
         //then
-        assertEquals(result, 60);
-    }
-    static class Calculator{
-        Calculator(){
-        }
-        int add(int i, int j){
-            return i+j;
-        }
+        assertNotNull(entities);
     }
 }
